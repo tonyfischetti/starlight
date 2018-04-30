@@ -126,17 +126,39 @@ to `lookup` based on your current system. This is useful for having just
 
 Installation
 ---
+First, you have to install racket. Then clone this project into your
+home directory (or anywhere you'd like, really)...
 
+```
+git clone https://github.com/tonyfischetti/starlight.git ~/
+```
+
+Then create a starlight configuration file in your home directory, feel free
+to use the `sample.rtk` file in this repository as a starting point.
+
+To start the Starlight "server", run the `start-starlight.sh` shell script
+in this repository. Alternatively, you can just run
+`racket -e '(enter! "starlight.rkt")' &` in the shell. You may want to run
+this command at startup so you don't have to remember to start the server
+everytime you restart your computer.
+
+Finally, we have to assign a keyboard shortcut to the command
+`curl "http://localhost:8080"` which will be able to bring up (or tear down)
+the launcher. On a Mac, I suggest
+[ICanHazShortcut](https://github.com/deseven/icanhazshortcut) which is
+delightfully easy to use. I like to map the `curl` command to
+Shift+Backspace.
 
 
 FAQ
 ---
 _Is Starlight for everyone?_
+
 I'd like anyone who is interested to look into it but Starlight is certainly
 not for everybody. It's power is (strictly speaking) unecessary. Starlight
-is probably best suited for use among Lisp hackers. Given that, impractical
-Lisp hackers tend to write practical solutions to all their problems themselves
-so I predict no one but me will be using this. If you do, dear reader,
+is probably best suited for use among Lisp hackers. Given that impractical
+Lisp hackers tend to write practical solutions to all their problems
+themselves, I predict no one but me will be using this. If you do, dear reader,
 let me know :)
 
 
