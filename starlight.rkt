@@ -1,3 +1,15 @@
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;      starlight.rkt      ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                 ;
+; Author: Tony Fischetti          ;
+; Email: tony.fischetti@gmail.com ;
+;                                 ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 #lang racket/load
 
 (require racket/gui)
