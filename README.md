@@ -1,4 +1,6 @@
 # Starlight
 
-This is an application I'm writing to help me learn Racket.
+A practical application launcher for impractical people
+---
 
+![Screenshot](./images/strl-screenshot.png)
