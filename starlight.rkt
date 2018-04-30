@@ -21,8 +21,10 @@
 (define-namespace-anchor a)
 (define ns (namespace-anchor->namespace a))
 
-(define-runtime-path appspath
-                     (string->path "/Users/tonyfischetti/starlight/apps.rktl"))
+(define-runtime-path
+  appspath (string->path (string-append
+                           (path->string (find-system-path 'home-dir))
+                           ".starlight.rkt")))
 
 (define (load-rc)
   (parameterize ([current-namespace ns])
