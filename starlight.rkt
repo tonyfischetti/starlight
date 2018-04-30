@@ -11,16 +11,12 @@
 (require xml net/url)
 
 (define color-prefs:black-on-white #t)
-; (define application:current-app-name "Starlight")
 
 (define arg-separator ":")
 
-(define my-style (new style-list%))
-(send my-style basic-style)
-
 (define this-form '())
-(define args "")
 (define inputcontents "")
+
 
 (define-namespace-anchor a)
 (define ns (namespace-anchor->namespace a))
@@ -31,7 +27,6 @@
 (define (load-rc)
   (parameterize ([current-namespace ns])
     (load appspath)))
-
 
 (load-rc)
 
@@ -54,19 +49,17 @@
   (send input set-value "")
   (populate-field app-field lookup ""))
 
-(define (dowith winner therest contents)
+(define (do-target-match winner contents)
   (set! this-form (assoc (string->symbol winner) lookup))
-  (set! args therest)
   (set! inputcontents contents)
   (let [(exec-form (get-exec-form lookup (string->symbol winner)))]
     (eval exec-form ns))
   (done))
 
 
-(define topframe (new frame% [label "Starlight"]
-                             [style '(no-caption)]
-                             [x 100]
-                             [y 100]))
+; GUI components
+(define topframe
+  (new frame% [label "Starlight"] [style '(no-caption)] [x 100] [y 100]))
 
 (define input
   (new text-field%
@@ -79,20 +72,12 @@
                   [firstitem (if (not (equal? contents "")) (car separated) contents)])
              (let ([passing (populate-field app-field lookup firstitem)])
                (cond [(and (eq? etype 'text-field-enter) (= 1 (length passing)))
-                      (dowith (car passing)
-                              (if (= (length separated) 1)
-                                '()
-                                (string-trim (car (cdr separated)) #:left? #t)) contents)]
+                      (do-target-match (car passing) contents)]
                      [(and (equal? contents "") (eq? etype 'text-field-enter)) (done)]))))]))
 
-
-
-(define app-field (new text-field% [parent topframe]
-                       [label #f]
-                       [init-value "Camm me Ismael"]
-                       [min-width 300]
-                       [min-height 700]
-                       [enabled #f]))
+(define app-field
+  (new text-field% [parent topframe] [label #f] [min-width 300]
+       [min-height 700] [enabled #f]))
 
 
 (send topframe center)
@@ -100,7 +85,7 @@
 (define SHOWN? #t)
 (populate-field app-field lookup "")
 
-
+; listening server components
 (define (serve port-no)
   (define listener (tcp-listen port-no 5 #t))
   (define (loop)
