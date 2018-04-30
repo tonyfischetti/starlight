@@ -85,16 +85,13 @@
 (define SHOWN? #t)
 (populate-field app-field lookup "")
 
+
 ; listening server components
 (define (serve port-no)
   (define listener (tcp-listen port-no 5 #t))
-  (define (loop)
-    (accept-and-handle listener)
-    (loop))
+  (define (loop) (accept-and-handle listener) (loop))
   (define t (thread loop))
-  (lambda ()
-    (kill-thread t)
-    (tcp-close listener)))
+  (lambda () (kill-thread t) (tcp-close listener)))
 
 (define (accept-and-handle listener)
   (define-values (in out) (tcp-accept listener))
@@ -104,12 +101,8 @@
 
 (define (handle in out)
   (if SHOWN?
-    (begin
-      (send topframe show #f)
-      (set! SHOWN? #f))
-    (begin
-      (send topframe show #t)
-      (set! SHOWN? #t))))
+    (begin (send topframe show #f) (set! SHOWN? #f))
+    (begin (send topframe show #t) (set! SHOWN? #t))))
 
 (define stop (serve 8080))
 

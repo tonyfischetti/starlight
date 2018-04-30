@@ -28,6 +28,7 @@
     (itunes (exec "open /Applications/iTunes.app/"))
     (spotify (exec "open /Applications/Spotify.app/"))
     (monitor (exec "open /Applications/Utilities/Activity\\ Monitor.app"))
+    (repl (graphical-read-eval-print-loop))
     (gmail (exec "open 'http://gmail.com'"))
     (messages (exec "open /Applications/Messages.app"))
     (lock (exec "/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine"))
