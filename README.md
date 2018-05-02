@@ -137,7 +137,8 @@ Then create a starlight configuration file in your home directory, feel free
 to use the `sample.rtk` file in this repository as a starting point.
 
 To start the Starlight "server", run the `start-starlight.sh` shell script
-in this repository. Alternatively, you can just run
+in this repository. (Make sure the Racket bin directory is in your PATH
+environment variable.)Alternatively, you can just run
 `racket -e '(enter! "starlight.rkt")' &` in the shell. You may want to run
 this command at startup so you don't have to remember to start the server
 everytime you restart your computer.
