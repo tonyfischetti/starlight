@@ -16,7 +16,7 @@
 
 (define lookup
   `((reload (load-rc))
-    (quit (exit 0))))
+    (kill (exit 0))))
 
 (define mac-lookup
   `((firefox (exec "open /Applications/Firefox.app"))
@@ -30,6 +30,7 @@
     (monitor (exec "open /Applications/Utilities/Activity\\ Monitor.app"))
     (repl (graphical-read-eval-print-loop))
     (gmail (exec "open 'http://gmail.com'"))
+    (preview (exec "open /Applications/Preview.app"))
     (messages (exec "open /Applications/Messages.app"))
     (lock (exec "/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine"))
     (google

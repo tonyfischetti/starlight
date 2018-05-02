@@ -29,6 +29,7 @@
 (define this-form '())
 (define inputcontents "")
 
+(define PORT 9876)
 
 (define-namespace-anchor a)
 (define ns (namespace-anchor->namespace a))
@@ -118,6 +119,6 @@
     (begin (send topframe show #f) (set! SHOWN? #f))
     (begin (send topframe show #t) (set! SHOWN? #t))))
 
-(define stop (serve 8080))
+(define stop (serve PORT))
 
 (yield never-evt)
