@@ -16,7 +16,7 @@
 
 (define lookup
   `((reload (load-rc))
-    (quit (exit 0))))
+    (kill (exit 0))))
 
 (define mac-lookup
   `((firefox (exec "open /Applications/Firefox.app"))
@@ -27,9 +27,13 @@
     (whatsapp (exec "open /Applications/WhatsApp.app/"))
     (itunes (exec "open /Applications/iTunes.app/"))
     (spotify (exec "open /Applications/Spotify.app/"))
+    (image-capture (exec "open /Applications/Image Capture.app/"))
+    (todo (exec "open /Applications/2Do.app/"))
     (monitor (exec "open /Applications/Utilities/Activity\\ Monitor.app"))
     (repl (graphical-read-eval-print-loop))
     (gmail (exec "open 'http://gmail.com'"))
+    (preview (exec "open /Applications/Preview.app"))
+    (slack (exec "open /Applications/Slack.app/"))
     (messages (exec "open /Applications/Messages.app"))
     (lock (exec "/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine"))
     (google
