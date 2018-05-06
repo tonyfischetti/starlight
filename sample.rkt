@@ -16,6 +16,7 @@
 
 (define lookup
   `((reload (load-rc))
+    (repl (graphical-read-eval-print-loop))
     (kill (begin (stop-server) (exit 0)))))
 
 (define mac-lookup
@@ -30,7 +31,6 @@
     (image-capture (exec "open /Applications/Image Capture.app/"))
     (todo (exec "open /Applications/2Do.app/"))
     (monitor (exec "open /Applications/Utilities/Activity\\ Monitor.app"))
-    (repl (graphical-read-eval-print-loop))
     (gmail (exec "open 'http://gmail.com'"))
     (preview (exec "open /Applications/Preview.app"))
     (slack (exec "open /Applications/Slack.app/"))
@@ -60,13 +60,14 @@
       (let [(url (string-append
                    "open -a Firefox 'https://translate.google.com/#en/es/"
                    (get-after-colon inputcontents)  "'"))]
-        (exec url)))
-  ))
+        (exec url)))))
 
 (define unix-lookup
   '((firefox (exec "firefox &"))
     (lock (exec "xscreensaver-command -lock"))
     (notes (exec "xfce4-terminal -x vim /home/tony/Dropbox/Unclutter\\ Notes/arch-notes.txt &"))
+    (gmail (exec "firefox --new-tab 'http://gmail.com'"))
+    (todo (exec "firefox --new-tab 'http://toodledo.com'"))
     (chrome (exec "google-chrome-stable &"))
     (terminal (exec "xfce4-terminal &"))
     (chrome (exec "google-chrome-stable &"))
@@ -86,7 +87,31 @@
     (mendeley (exec "mendeleydesktop &"))
     (shutdown (exec "xfce4-terminal -x sudo shutdown -h now"))
     (reboot (exec "xfce4-terminal -x sudo shutdown -r now"))
-  ))
+    (google
+      (let [(url (string-append
+                   "firefox --new-tab 'http://www.google.com/search?q="
+                   (get-after-colon inputcontents) "'"))]
+        (exec url)))
+    (wiki
+      (let [(url (string-append
+                   "firefox --new-tab 'http://en.wikipedia.org/wiki/Special:Search?search="
+                   (get-after-colon inputcontents) "'"))]
+        (exec url)))
+    (youtube
+      (let [(url (string-append
+                   "firefox --new-tab 'http://www.youtube.com/results?search_query="
+                   (get-after-colon inputcontents) "'"))]
+        (exec url)))
+    (esen
+      (let [(url (string-append
+                   "firefox --new-tab 'https://translate.google.com/#es/en/"
+                   (get-after-colon inputcontents) "'"))]
+        (exec url)))
+    (enes
+      (let [(url (string-append
+                   "firefox --new-tab 'https://translate.google.com/#en/es/"
+                   (get-after-colon inputcontents)  "'"))]
+        (exec url)))))
 
 
 (if (eq? os 'macosx) (set! lookup (append lookup mac-lookup)) '())
