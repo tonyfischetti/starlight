@@ -27,11 +27,11 @@ Once the app field is narrowed down to one selection, striking the "Enter"
 key will run the code you assigned to that target. The launcher window will
 then hide itself.
 
-Starlight starts a TCP server and listener on port 8080. Any request to
-`localhost:8080` will cause the launcher to re-appear. It disappears when you
+Starlight starts a TCP server and listener on port 9876. Any request to
+`localhost:9876` will cause the launcher to re-appear. It disappears when you
   - run another target
   - strike "Enter" with nothing in the input field
-  - or make another request to `localhost:8080`
+  - or make another request to `localhost:9876`
 
 Since the launcher is always running, it appears very quickly.
 
@@ -137,13 +137,14 @@ Then create a starlight configuration file in your home directory, feel free
 to use the `sample.rtk` file in this repository as a starting point.
 
 To start the Starlight "server", run the `start-starlight.sh` shell script
-in this repository. Alternatively, you can just run
+in this repository. (Make sure the Racket bin directory is in your PATH
+environment variable.)Alternatively, you can just run
 `racket -e '(enter! "starlight.rkt")' &` in the shell. You may want to run
 this command at startup so you don't have to remember to start the server
 everytime you restart your computer.
 
 Finally, we have to assign a keyboard shortcut to the command
-`curl "http://localhost:8080"` which will be able to bring up (or tear down)
+`curl "http://localhost:9876"` which will be able to bring up (or tear down)
 the launcher. On a Mac, I suggest
 [ICanHazShortcut](https://github.com/deseven/icanhazshortcut) which is
 delightfully easy to use. I like to map the `curl` command to

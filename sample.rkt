@@ -33,7 +33,10 @@
     (repl (graphical-read-eval-print-loop))
     (gmail (exec "open 'http://gmail.com'"))
     (preview (exec "open /Applications/Preview.app"))
+<<<<<<< HEAD
     (slack (exec "open /Applications/Slack.app/"))
+=======
+>>>>>>> a95f61f92b200a2bb6ad77740218e77f4460b45d
     (messages (exec "open /Applications/Messages.app"))
     (lock (exec "/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine"))
     (google
