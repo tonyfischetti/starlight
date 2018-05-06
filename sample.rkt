@@ -16,7 +16,7 @@
 
 (define lookup
   `((reload (load-rc))
-    (kill (exit 0))))
+    (kill (begin (stop-server) (exit 0)))))
 
 (define mac-lookup
   `((firefox (exec "open /Applications/Firefox.app"))
@@ -33,10 +33,7 @@
     (repl (graphical-read-eval-print-loop))
     (gmail (exec "open 'http://gmail.com'"))
     (preview (exec "open /Applications/Preview.app"))
-<<<<<<< HEAD
     (slack (exec "open /Applications/Slack.app/"))
-=======
->>>>>>> a95f61f92b200a2bb6ad77740218e77f4460b45d
     (messages (exec "open /Applications/Messages.app"))
     (lock (exec "/System/Library/CoreServices/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine"))
     (google
@@ -64,8 +61,34 @@
                    "open -a Firefox 'https://translate.google.com/#en/es/"
                    (get-after-colon inputcontents)  "'"))]
         (exec url)))
-    ))
+  ))
+
+(define unix-lookup
+  '((firefox (exec "firefox &"))
+    (lock (exec "xscreensaver-command -lock"))
+    (notes (exec "xfce4-terminal -x vim /home/tony/Dropbox/Unclutter\\ Notes/arch-notes.txt &"))
+    (chrome (exec "google-chrome-stable &"))
+    (terminal (exec "xfce4-terminal &"))
+    (chrome (exec "google-chrome-stable &"))
+    (incognito (exec "google-chrome-stable --incognito &"))
+    (explorer (exec "pcmanfm &"))
+    (clock (exec "xclock -d -sharp -render -chime"))
+    (watch (exec "xclock -sharp -render -chime"))
+    (volume (exec "xfce4-terminal -x alsamixer"))
+    (night (exec "redshift -O 2500"))
+    (deepnight (exec "redshift -O 2000"))
+    (day (exec "redshift -O 5500"))
+    (time (exec "flash-time"))
+    (spotify (exec "spotify &"))
+    (whatsapp (exec "Whatsapp &"))
+    (gnumeric (exec "gnumeric &"))
+    (libreoffice (exec "libreoffice &"))
+    (mendeley (exec "mendeleydesktop &"))
+    (shutdown (exec "xfce4-terminal -x sudo shutdown -h now"))
+    (reboot (exec "xfce4-terminal -x sudo shutdown -r now"))
+  ))
 
 
 (if (eq? os 'macosx) (set! lookup (append lookup mac-lookup)) '())
+(if (eq? os 'unix) (set! lookup (append lookup unix-lookup)) '())
 

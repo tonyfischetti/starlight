@@ -22,14 +22,14 @@
 (require framework)
 (require xml net/url)
 
-(define color-prefs:black-on-white #t)
-
 (define arg-separator ":")
 
 (define this-form '())
 (define inputcontents "")
 
 (define PORT 9876)
+
+(define SHOWN? #t)
 
 (define-namespace-anchor a)
 (define ns (namespace-anchor->namespace a))
@@ -45,6 +45,14 @@
 
 (load-rc)
 
+(define (SHOW!)
+  (send topframe show #t)
+  (set! SHOWN? #t)
+  (send input focus))
+
+(define (HIDE!)
+  (send topframe show #f)
+  (set! SHOWN? #f))
 
 (define (get-exec-form lookup csym)
   (car (cdr (assoc csym lookup))))
@@ -59,10 +67,9 @@
   (process this))
 
 (define (done)
-  (send topframe show #f)
-  (set! SHOWN? #f)
   (send input set-value "")
-  (populate-field app-field lookup ""))
+  (populate-field app-field lookup "")
+  (HIDE!))
 
 (define (do-target-match winner contents)
   (set! this-form (assoc (string->symbol winner) lookup))
@@ -74,7 +81,7 @@
 
 ; GUI components
 (define topframe
-  (new frame% [label "Starlight"] [style '(no-caption)] [x 100] [y 100]))
+  (new frame% [label "Starlight"] [style '(no-caption)] [x 100] [y 90]))
 
 (define input
   (new text-field%
@@ -95,10 +102,9 @@
        [min-height 700] [enabled #f]))
 
 
-(send topframe center)
-(send topframe show #t)
-(define SHOWN? #t)
 (populate-field app-field lookup "")
+(send topframe center)
+(SHOW!)
 
 
 ; listening server components
@@ -116,9 +122,9 @@
 
 (define (handle in out)
   (if SHOWN?
-    (begin (send topframe show #f) (set! SHOWN? #f))
-    (begin (send topframe show #t) (set! SHOWN? #t))))
+    (HIDE!)
+    (SHOW!)))
 
-(define stop (serve PORT))
+(define stop-server (serve PORT))
 
 (yield never-evt)
