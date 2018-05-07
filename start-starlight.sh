@@ -1,3 +1,3 @@
 #!/bin/bash
 
-racket -e '(enter! "Starlight.rkt")' &
+racket -e '(enter! "starlight.rkt")' &

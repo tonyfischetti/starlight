@@ -126,6 +126,33 @@ to `lookup` based on your current system. This is useful for having just
 
 Installation
 ---
+
+**If you're using a mac**
+With racket you can build standalone executables that contain
+a racket interpreter. In the `./mac-app/` folder you'll see
+`Starlight.app` with a cute dinosaur icon apropos of nothing.
+Drag that into your /Applications/ folder. You can have it start
+up everytime you log in by going to
+"System Preferences -> Users & Groups" clicking the "Login Items" pane
+and adding "Starlight".
+
+Now, you have to make the appropriate files in a directory called
+`.starlight` in your home folder. To do it most easily, run
+```
+git clone https://github.com/tonyfischetti/starlight-config.git ~/.starlight
+```
+and make the configuration file (`config.rkt`) your own!
+
+Finally, you have to assign a keyboard shortcut to the command
+`curl "http://localhost:9876"` which will be able to bring up (or tear down)
+the launcher. I suggest
+[ICanHazShortcut](https://github.com/deseven/icanhazshortcut) which is
+delightfully easy to use. I like to map the `curl` command to
+Shift+Backspace.
+
+
+**If you don't have a mac**
+*This directions are applicable to Mac users, too*
 First, you have to install racket. Then clone this project into your
 home directory (or anywhere you'd like, really)...
 
@@ -133,22 +160,23 @@ home directory (or anywhere you'd like, really)...
 git clone https://github.com/tonyfischetti/starlight.git ~/
 ```
 
-Then create a starlight configuration file in your home directory, feel free
-to use the `sample.rtk` file in this repository as a starting point.
+Now, you have to make the appropriate files in a directory called
+`.starlight` in your home folder. To do it most easily, run
+```
+git clone https://github.com/tonyfischetti/starlight-config.git ~/.starlight
+```
+and make the configuration file (`config.rkt`) your own!
 
 To start the Starlight "server", run the `start-starlight.sh` shell script
 in this repository. (Make sure the Racket bin directory is in your PATH
-environment variable.)Alternatively, you can just run
+environment variable.) Alternatively, you can just run
 `racket -e '(enter! "starlight.rkt")' &` in the shell. You may want to run
 this command at startup so you don't have to remember to start the server
 everytime you restart your computer.
 
 Finally, we have to assign a keyboard shortcut to the command
 `curl "http://localhost:9876"` which will be able to bring up (or tear down)
-the launcher. On a Mac, I suggest
-[ICanHazShortcut](https://github.com/deseven/icanhazshortcut) which is
-delightfully easy to use. I like to map the `curl` command to
-Shift+Backspace.
+the launcher.
 
 
 FAQ
