@@ -1,7 +1,7 @@
 #!/usr/bin/env racket
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;      Starlight.rkt      ;;;;;
+;;;;;      starlight.rkt      ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                 ;
 ; Author: Tony Fischetti          ;
