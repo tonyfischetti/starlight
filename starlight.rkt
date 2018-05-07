@@ -1,7 +1,7 @@
 #!/usr/bin/env racket
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;      starlight.rkt      ;;;;;
+;;;;;      Starlight.rkt      ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;                                 ;
 ; Author: Tony Fischetti          ;
@@ -23,7 +23,8 @@
 (require racket/runtime-path
          (for-syntax racket/lang/reader))
 (require (for-syntax racket/match/parse))
-(require (file "/Users/tonyfischetti/.starlight/loader.rkt"))
+(require (file "~/.starlight/loader.rkt"))
+
 
 (define arg-separator ":")
 
@@ -37,11 +38,6 @@
 (define-namespace-anchor a)
 (define ns (namespace-anchor->namespace a))
 
-; (define-runtime-path
-;   appspath "/Users/tonyfischetti/.starlight/loader.rkt")
-  ; (string->path (string-append
-  ;                          (path->string (find-system-path 'home-dir))
-  ;                          "./.starlight/config.rkt")))
 
 (define (load-rc)
   (parameterize ([current-namespace ns])

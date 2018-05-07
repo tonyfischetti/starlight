@@ -1,5 +1,5 @@
 #!/bin/bash
 
-raco exe --gui ++lib racket/lang/reader ++lib racket/gui ++lib framework starlight.rkt
-raco distribute mac-app starlight.app
-# rm -rf starlight.app
+raco exe --gui --icns ./icon/sample.icns ++lib racket/lang/reader ++lib racket/gui ++lib framework Starlight.rkt
+raco distribute mac-app Starlight.app
+rm -rf Starlight.app
