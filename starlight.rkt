@@ -14,17 +14,14 @@
 
 (require racket/gui)
 (require racket/string)
-(require racket/struct)
 (require racket/system)
 (require racket/class)
-(require racket/snip)
-(require racket/runtime-path)
-(require framework)
 (require racket/runtime-path
          (for-syntax racket/lang/reader))
 (require (for-syntax racket/match/parse))
 (require (file "~/.starlight/loader.rkt"))
 
+(define *VERSION* "0.9")
 
 (define arg-separator ":")
 
@@ -105,6 +102,15 @@
 (populate-field app-field lookup "")
 (send topframe center)
 (SHOW!)
+
+(define about-dialog
+  (new dialog% [label "About"] [min-width 200] [min-height 100]
+       [stretchable-width #t] [stretchable-height #t]
+       [style '(close-button)]))
+
+(define about-message
+  (new message% [label (string-append "Starlight v. " *VERSION*)]
+       [parent about-dialog] [vert-margin 36]))
 
 
 ; listening server components
