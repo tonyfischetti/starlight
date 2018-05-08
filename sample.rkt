@@ -17,6 +17,7 @@
 (define lookup
   `((reload (load-rc))
     (repl (graphical-read-eval-print-loop))
+    (about (send about-dialog show #t))
     (kill (begin (stop-server) (exit 0)))))
 
 (define mac-lookup
