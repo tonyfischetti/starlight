@@ -21,7 +21,7 @@
 (require (for-syntax racket/match/parse))
 (require (file "~/.starlight/loader.rkt"))
 
-(define *VERSION* "0.9")
+(define *VERSION* "0.95")
 
 (define arg-separator ":")
 
@@ -111,6 +111,18 @@
 (define about-message
   (new message% [label (string-append "Starlight v. " *VERSION*)]
        [parent about-dialog] [vert-margin 36]))
+
+
+(define cmdout-dialog
+  (new dialog% [label "Command Output"] [min-width 500] [min-height 600]
+       [stretchable-width #t] [stretchable-height #t]
+       [style '(close-button)]))
+
+; (define cmdout-message
+;   (new message% [label (string-append "Starlight v. " *VERSION*)]
+;        [parent about-dialog] [vert-margin 36]))
+
+
 
 
 ; listening server components
