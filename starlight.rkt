@@ -42,6 +42,9 @@
 
 (load-rc)
 
+; the default matching? function is string equality
+(define matching? string-prefix?)
+
 (define (SHOW!)
   (send topframe show #t)
   (set! SHOWN? #t)
@@ -56,24 +59,38 @@
 
 (define (populate-field afield lookup prefix)
   (let* ([allapps (map symbol->string (map car lookup))]
-         [passing-apps (filter (lambda (x) (string-prefix? x prefix)) allapps)])
+         [passing-apps (filter (lambda (x) (matching? x prefix)) allapps)])
     (send app-field set-value (string-join passing-apps "\n"))
     passing-apps))
 
 (define (exec this)
+  ;(printf "exec-ing this: ~A~%" this)
   (process this))
 
-(define (done)
+; (define (done)
+;   (send input set-value "")
+;   (populate-field app-field lookup "")
+;   (HIDE!))
+
+(define (done bool)
   (send input set-value "")
   (populate-field app-field lookup "")
-  (HIDE!))
+  (when bool
+    (HIDE!)))
+
+
+; (define (do-target-match winner contents)
+;   (set! this-form (assoc (string->symbol winner) lookup))
+;   (set! inputcontents contents)
+;   (let [(exec-form (get-exec-form lookup (string->symbol winner)))]
+;     (printf "~A: ~A~%" winner (if (eval exec-form ns) "true" "false")))
+;   (done))
 
 (define (do-target-match winner contents)
   (set! this-form (assoc (string->symbol winner) lookup))
   (set! inputcontents contents)
   (let [(exec-form (get-exec-form lookup (string->symbol winner)))]
-    (eval exec-form ns))
-  (done))
+    (done (eval exec-form ns))))
 
 
 ; GUI components
@@ -92,7 +109,8 @@
              (let ([passing (populate-field app-field lookup firstitem)])
                (cond [(and (eq? etype 'text-field-enter) (= 1 (length passing)))
                       (do-target-match (car passing) contents)]
-                     [(and (equal? contents "") (eq? etype 'text-field-enter)) (done)]))))]))
+                     [(and (equal? contents "") (eq? etype 'text-field-enter)) (done #t)]))))]))
+
 
 (define app-field
   (new text-field% [parent topframe] [label #f] [min-width 300]
