@@ -21,7 +21,7 @@
 (require (for-syntax racket/match/parse))
 (require (file "~/.starlight/loader.rkt"))
 
-(define *VERSION* "0.95")
+(define *VERSION* "0.97")
 
 (define arg-separator ":")
 
