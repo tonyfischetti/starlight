@@ -43,7 +43,7 @@
 (load-rc)
 
 ; the default matching? function is string equality
-(define matching? string-prefix?)
+(define matching? (make-parameter string-prefix?))
 
 (define (SHOW!)
   (send topframe show #t)
@@ -59,12 +59,12 @@
 
 (define (populate-field afield lookup prefix)
   (let* ([allapps (map symbol->string (map car lookup))]
-         [passing-apps (filter (lambda (x) (matching? x prefix)) allapps)])
+         [passing-apps (filter (lambda (x) ((matching?) x prefix)) allapps)])
     (send app-field set-value (string-join passing-apps "\n"))
     passing-apps))
 
 (define (exec this)
-  ;(printf "exec-ing this: ~A~%" this)
+  ; (printf "exec-ing this: ~A~%" this)
   (process this))
 
 ; (define (done)
