@@ -21,7 +21,7 @@
 (require (for-syntax racket/match/parse))
 (require (file "~/.starlight/loader.rkt"))
 
-(define *VERSION* "0.97")
+(define *VERSION* "0.98")
 
 (define arg-separator ":")
 
@@ -64,27 +64,14 @@
     passing-apps))
 
 (define (exec this)
-  ; (printf "exec-ing this: ~A~%" this)
+  (log-warning "executing: ~A~%" this)
   (process this))
-
-; (define (done)
-;   (send input set-value "")
-;   (populate-field app-field lookup "")
-;   (HIDE!))
 
 (define (done bool)
   (send input set-value "")
   (populate-field app-field lookup "")
   (when bool
     (HIDE!)))
-
-
-; (define (do-target-match winner contents)
-;   (set! this-form (assoc (string->symbol winner) lookup))
-;   (set! inputcontents contents)
-;   (let [(exec-form (get-exec-form lookup (string->symbol winner)))]
-;     (printf "~A: ~A~%" winner (if (eval exec-form ns) "true" "false")))
-;   (done))
 
 (define (do-target-match winner contents)
   (set! this-form (assoc (string->symbol winner) lookup))
@@ -136,11 +123,6 @@
        [stretchable-width #t] [stretchable-height #t]
        [style '(close-button)]))
 
-; (define cmdout-message
-;   (new message% [label (string-append "Starlight v. " *VERSION*)]
-;        [parent about-dialog] [vert-margin 36]))
-
-
 
 
 ; listening server components
@@ -163,4 +145,7 @@
 
 (define stop-server (serve PORT))
 
+(log-warning "started tcp listener")
+
 (yield never-evt)
+

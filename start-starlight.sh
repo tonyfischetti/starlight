@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd ~/starlight && racket -e '(enter! "starlight.rkt")' &
+cd ~/starlight && racket -L "warning" -e '(enter! "starlight.rkt")' &
