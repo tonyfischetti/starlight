@@ -21,7 +21,7 @@
 (require (for-syntax racket/match/parse))
 (require (file "~/.starlight/loader.rkt"))
 
-(define *VERSION* "0.98")
+(define *VERSION* "0.99")
 
 (define arg-separator ":")
 
@@ -48,6 +48,7 @@
 (define (SHOW!)
   (send topframe show #t)
   (set! SHOWN? #t)
+  (populate-field app-field lookup "")
   (send input focus))
 
 (define (HIDE!)
@@ -73,6 +74,7 @@
   (when bool
     (HIDE!)))
 
+
 (define (do-target-match winner contents)
   (set! this-form (assoc (string->symbol winner) lookup))
   (set! inputcontents contents)
@@ -82,7 +84,7 @@
 
 ; GUI components
 (define topframe
-  (new frame% [label "Starlight"] [style '(no-caption)] [x 100] [y 90]))
+  (new frame% [label "Starlight"] [style '(no-caption)] [x 100] [y 60]))
 
 (define input
   (new text-field%
@@ -101,7 +103,7 @@
 
 (define app-field
   (new text-field% [parent topframe] [label #f] [min-width 300]
-       [min-height 700] [enabled #f]))
+       [min-height 600] [enabled #f]))
 
 
 (populate-field app-field lookup "")
