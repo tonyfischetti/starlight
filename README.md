@@ -157,7 +157,7 @@ First, you have to install racket. Then clone this project into your
 home directory (or anywhere you'd like, really)...
 
 ```
-git clone https://github.com/tonyfischetti/starlight.git ~/
+git clone https://github.com/tonyfischetti/starlight.git ~/starlight
 ```
 
 Now, you have to make the appropriate files in a directory called
