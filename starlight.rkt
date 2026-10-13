@@ -80,11 +80,23 @@
     (HIDE!)))
 
 
+; If a target's form raises, show the error instead of letting it die
+; on stderr. The launcher stays up with the input intact so the typo
+; (or missing argument) can be fixed and re-run.
+(define (report-target-error winner e)
+  (log-warning "target '~A' failed: ~A" winner (exn-message e))
+  (message-box "Starlight: target failed"
+               (format "~A\n\n~A" winner (exn-message e))
+               topframe
+               '(ok stop))
+  (send input focus))
+
 (define (do-target-match winner contents)
   (set! this-form (assoc (string->symbol winner) lookup))
   (set! inputcontents contents)
   (let [(exec-form (get-exec-form lookup (string->symbol winner)))]
-    (done (eval exec-form ns))))
+    (with-handlers ([exn:fail? (lambda (e) (report-target-error winner e))])
+      (done (eval exec-form ns)))))
 
 
 ; GUI components
