@@ -23,7 +23,7 @@
 ; it are guarded by an OS check.
 (require ffi/unsafe ffi/unsafe/objc ffi/unsafe/global)
 
-(define *VERSION* "0.99")
+(define *VERSION* "1.0")
 
 (define arg-separator ":")
 
@@ -74,16 +74,17 @@
 
 (define mac? (eq? (system-type 'os) 'macosx))
 
-; mac-show-panel! is a no-op except on macOS, where it is redefined
-; below once the window exists.
-(define (mac-show-panel!) (void))
+; mac-setup-panel! / mac-show-panel! are no-ops except on macOS, where
+; they are redefined below.
+(define (mac-setup-panel! f) (void))
+(define (mac-show-panel! f) (void))
 
 (define (SHOW!)
   ; re-center every time, so docking/undocking a display or changing
   ; resolution doesn't leave the chooser where it used to be centered
   (send topframe center)
   (send topframe show #t)
-  (mac-show-panel!)
+  (mac-show-panel! topframe)
   (set! SHOWN? #t)
   (populate-field app-field lookup "")
   (send input focus))
@@ -122,10 +123,8 @@
 ; (or missing argument) can be fixed and re-run.
 (define (report-target-error winner e)
   (log-warning "target '~A' failed: ~A" winner (exn-message e))
-  (message-box "Starlight: target failed"
-               (format "~A\n\n~A" winner (exn-message e))
-               topframe
-               '(ok stop))
+  (show-message "Starlight: target failed"
+                (format "~A\n\n~A" winner (exn-message e)))
   (send input focus))
 
 (define (do-target-match winner contents)
@@ -167,21 +166,66 @@
 ;    show; the Racket-GUI-no-front process global suppresses the
 ;    activation, and the policy is set back after each show.
 ;      NSApplicationActivationPolicyAccessory = 1
+;
+; The same treatment is applied to every window Starlight opens (About,
+; Command Output, error reports): since the app never activates, an
+; ordinary window would come up behind everything or on another Space,
+; and a modal one would then block the launcher with no way to dismiss it.
 (when mac?
   (register-process-global #"Racket-GUI-no-front" #"1")
   (import-class NSApplication)
   (define nsapp (tell NSApplication sharedApplication))
-  (define nswin (cast (send topframe get-handle) _pointer _id))
-  (tellv nswin setCollectionBehavior: #:type _uint64
-         (bitwise-ior 1 (arithmetic-shift 1 8)))
-  (tellv nswin setLevel: #:type _int64 3)
-  (tellv nswin setStyleMask: #:type _uint64
-         (bitwise-ior (tell #:type _uint64 nswin styleMask) (arithmetic-shift 1 7)))
-  (tellv nswin setHidesOnDeactivate: #:type _BOOL #f)
+  (define (nswin f) (cast (send f get-handle) _pointer _id))
+  (set! mac-setup-panel!
+    (lambda (f)
+      (define w (nswin f))
+      (tellv w setCollectionBehavior: #:type _uint64
+             (bitwise-ior 1 (arithmetic-shift 1 8)))
+      (tellv w setLevel: #:type _int64 3)
+      (tellv w setStyleMask: #:type _uint64
+             (bitwise-ior (tell #:type _uint64 w styleMask) (arithmetic-shift 1 7)))
+      (tellv w setHidesOnDeactivate: #:type _BOOL #f)))
   (set! mac-show-panel!
-    (lambda ()
+    (lambda (f)
       (tellv nsapp setActivationPolicy: #:type _int64 1)
-      (tellv nswin makeKeyAndOrderFront: #f))))
+      (tellv (nswin f) makeKeyAndOrderFront: #f))))
+
+(mac-setup-panel! topframe)
+
+; A window that behaves like a dialog% -- `show #t` returns only once it
+; has been closed -- but is a frame% underneath so it can be a floating
+; panel on macOS (dialog% is always a regular window). The frame gets a
+; title bar with a close box; (send w show #f) from a button also works.
+(define popup-frame%
+  (class frame%
+    (init [style '()])
+    (super-new [style (append (if mac? '(float) '()) style)])
+    (define closed (make-semaphore 0))
+    (define/augment (on-close) (semaphore-post closed))
+    (define/override (show on?)
+      (cond
+        [on?
+         (set! closed (make-semaphore 0))
+         (send this center)
+         (super show #t)
+         (mac-show-panel! this)
+         (yield closed)]              ; keep dispatching events until closed
+        [else
+         (super show #f)
+         (semaphore-post closed)]))))
+
+; Show a message in a popup and wait for it to be dismissed.
+(define (show-message title text)
+  (define w (new popup-frame% [label title] [min-width 500]
+                 [stretchable-width #t] [stretchable-height #t]))
+  (mac-setup-panel! w)
+  (define field (new text-field% [parent w] [label #f] [enabled #f]
+                     [min-width 500] [min-height 150] [style '(multiple)]))
+  (define ok (new button% [parent w] [label "Ok"]
+                  [callback (lambda (b e) (send w show #f))]))
+  (send field set-value text)
+  (send ok focus)
+  (send w show #t))
 
 (define input
   (new text-field%
@@ -206,10 +250,12 @@
 (populate-field app-field lookup "")
 (SHOW!)
 
+; Windows available to the config. Both block in `show #t` until closed,
+; like the dialog%s they used to be.
 (define about-dialog
-  (new dialog% [label "About"] [min-width 200] [min-height 100]
-       [stretchable-width #t] [stretchable-height #t]
-       [style '(close-button)]))
+  (new popup-frame% [label "About"] [min-width 200] [min-height 100]
+       [stretchable-width #t] [stretchable-height #t]))
+(mac-setup-panel! about-dialog)
 
 (define about-message
   (new message% [label (string-append "Starlight v. " *VERSION*)]
@@ -217,9 +263,9 @@
 
 
 (define cmdout-dialog
-  (new dialog% [label "Command Output"] [min-width 500] [min-height 600]
-       [stretchable-width #t] [stretchable-height #t]
-       [style '(close-button)]))
+  (new popup-frame% [label "Command Output"] [min-width 500] [min-height 600]
+       [stretchable-width #t] [stretchable-height #t]))
+(mac-setup-panel! cmdout-dialog)
 
 
 
