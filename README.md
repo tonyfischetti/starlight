@@ -37,6 +37,13 @@ disappears when you
 If a target's code raises an error, a dialog shows the error message and
 the launcher stays up with your input intact so you can fix it and try again.
 
+On a Mac, the launcher is a floating panel that appears on whatever Space
+you are currently on, including the Space of a full-screen app, and it
+takes keyboard focus without stealing it from the app you were using.
+Starlight runs as a background ("accessory") app there, so it has no Dock
+icon; to quit it, use a target that calls `(exit 0)` (the sample config's
+`kill`) or `pkill Starlight`.
+
 Since the launcher is always running, it appears very quickly.
 
 
@@ -174,6 +181,9 @@ From the repository, run
 which leaves the app in `./mac-app/Starlight.app`. Drag that into your
 /Applications/ folder. You can have it start up every time you log in by
 going to "System Settings -> General -> Login Items" and adding "Starlight".
+Starlight handles Spaces itself, so don't assign it to "All Desktops" in
+the Dock; that binding excludes full-screen Spaces and overrides the app's
+own settings.
 
 Then assign a keyboard shortcut to the command
 `curl "http://localhost:9876"` which will be able to bring up (or tear down)

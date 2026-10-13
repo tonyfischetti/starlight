@@ -18,6 +18,10 @@
 ; racket/load's top level already provides everything in `racket`
 ; (racket/string, racket/system, racket/class, ...).
 (require racket/gui)
+; Needed for the macOS Spaces fix below. Safe to require on Linux too:
+; ffi/unsafe/objc tolerates a missing libobjc, and the calls that need
+; it are guarded by an OS check.
+(require ffi/unsafe ffi/unsafe/objc ffi/unsafe/global)
 (require (file "~/.starlight/loader.rkt"))
 
 (define *VERSION* "0.99")
@@ -45,8 +49,15 @@
 
 (load-rc)
 
+(define mac? (eq? (system-type 'os) 'macosx))
+
+; mac-show-panel! is a no-op except on macOS, where it is redefined
+; below once the window exists.
+(define (mac-show-panel!) (void))
+
 (define (SHOW!)
   (send topframe show #t)
+  (mac-show-panel!)
   (set! SHOWN? #t)
   (populate-field app-field lookup "")
   (send input focus))
@@ -99,8 +110,52 @@
 
 
 ; GUI components
+; On macOS the chooser is a floating panel (an NSPanel) rather than a
+; regular window; see the Spaces handling below. On other platforms
+; 'float would make it a utility window, which we don't want.
 (define topframe
-  (new frame% [label "Starlight"] [style '(no-caption)] [x 100] [y 60]))
+  (new frame% [label "Starlight"] [style (if mac? '(no-caption float) '(no-caption))]
+       [x 100] [y 60]))
+
+; macOS Spaces handling. The goal is for the chooser to appear wherever
+; the user is, including over a full-screen app, instead of dragging
+; them to the Space it was last on. The approach is the one launchers
+; like Spotlight and Alfred use: a non-activating floating panel.
+;
+; 1. The native window is flagged so it may join every Space, including
+;    the exclusive Space of a full-screen app, and floats above others.
+;      NSWindowCollectionBehaviorCanJoinAllSpaces    = 1
+;      NSWindowCollectionBehaviorFullScreenAuxiliary = 1 << 8
+;      NSFloatingWindowLevel                         = 3
+;
+; 2. The panel is made non-activating: it can take keyboard focus
+;    without Starlight becoming the active application. That matters
+;    because activating a separate app is exactly what makes macOS
+;    leave a full-screen Space (or refuse to bring the window into it).
+;    NSPanels hide themselves when their app is inactive by default,
+;    which must be switched off since ours is never active.
+;      NSWindowStyleMaskNonactivatingPanel = 1 << 7
+;
+; 3. Starlight runs as an "accessory" app (no Dock icon). racket/gui
+;    resets the policy to Regular and tries to activate the app on every
+;    show; the Racket-GUI-no-front process global suppresses the
+;    activation, and the policy is set back after each show.
+;      NSApplicationActivationPolicyAccessory = 1
+(when mac?
+  (register-process-global #"Racket-GUI-no-front" #"1")
+  (import-class NSApplication)
+  (define nsapp (tell NSApplication sharedApplication))
+  (define nswin (cast (send topframe get-handle) _pointer _id))
+  (tellv nswin setCollectionBehavior: #:type _uint64
+         (bitwise-ior 1 (arithmetic-shift 1 8)))
+  (tellv nswin setLevel: #:type _int64 3)
+  (tellv nswin setStyleMask: #:type _uint64
+         (bitwise-ior (tell #:type _uint64 nswin styleMask) (arithmetic-shift 1 7)))
+  (tellv nswin setHidesOnDeactivate: #:type _BOOL #f)
+  (set! mac-show-panel!
+    (lambda ()
+      (tellv nsapp setActivationPolicy: #:type _int64 1)
+      (tellv nswin makeKeyAndOrderFront: #f))))
 
 (define input
   (new text-field%
