@@ -66,7 +66,12 @@
 
 (define (exec this)
   (log-warning "executing: ~A~%" this)
-  (process this))
+  (let ([null-out (open-output-file "/dev/null" #:exists 'append)]
+        [null-in  (open-input-file  "/dev/null")])
+    (begin0
+      (process/ports null-out null-in 'stdout this)
+      (close-output-port null-out)
+      (close-input-port  null-in))))
 
 (define (done bool)
   (send input set-value "")
