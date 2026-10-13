@@ -132,9 +132,8 @@
 
 
 
-; listening server components
 (define (serve port-no)
-  (define listener (tcp-listen port-no 5 #t))
+  (define listener (tcp-listen port-no 5 #t "127.0.0.1"))
   (define (loop) (accept-and-handle listener) (loop))
   (define t (thread loop))
   (lambda () (kill-thread t) (tcp-close listener)))
