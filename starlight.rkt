@@ -25,6 +25,11 @@
 
 (define arg-separator ":")
 
+; the default matching? function is string-prefix?. Like arg-separator,
+; this must be defined BEFORE load-rc runs so that a config file can
+; override it; a define placed after load-rc would clobber the config's.
+(define matching? (make-parameter string-prefix?))
+
 (define this-form '())
 (define inputcontents "")
 
@@ -41,9 +46,6 @@
     (load incpath)))
 
 (load-rc)
-
-; the default matching? function is string equality
-(define matching? (make-parameter string-prefix?))
 
 (define (SHOW!)
   (send topframe show #t)

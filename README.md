@@ -19,19 +19,23 @@ in the foot.
 
 So what's the big idea
 ---
-So... when Starlight starts, it parses a file in your home directory called
-`.starlight.rkt`. It populates the launcher window with targets defined in
-the aforementioned file. As you type a target into the input window, your
-the launcher will narrow down based on whether it matches what you are typing.
-Once the app field is narrowed down to one selection, striking the "Enter"
-key will run the code you assigned to that target. The launcher window will
-then hide itself.
+So... when Starlight starts, it loads a file in your home directory called
+`~/.starlight/config.rkt`. It populates the launcher window with targets
+defined in the aforementioned file. As you type a target into the input
+window, the launcher will narrow down based on whether it matches what you
+are typing. Once the app field is narrowed down to one selection, striking
+the "Enter" key will run the code you assigned to that target. The launcher
+window will then hide itself.
 
-Starlight starts a TCP server and listener on port 9876. Any request to
-`localhost:9876` will cause the launcher to re-appear. It disappears when you
-  - run another target
+Starlight starts a TCP listener on port 9876, bound to localhost only. Any
+connection to `localhost:9876` will cause the launcher to re-appear. It
+disappears when you
+  - run a target (unless the target's form returns `#f`, see below)
   - strike "Enter" with nothing in the input field
-  - or make another request to `localhost:9876`
+  - or make another connection to `localhost:9876`
+
+If a target's code raises an error, a dialog shows the error message and
+the launcher stays up with your input intact so you can fix it and try again.
 
 Since the launcher is always running, it appears very quickly.
 
@@ -39,18 +43,25 @@ Since the launcher is always running, it appears very quickly.
 So why is it powerful
 ---
 
-Starlight exploits the Lisp's powerful mechanisms for dynamic code
+Starlight exploits Lisp's powerful mechanisms for dynamic code
 execution. As mentioned before, upon starting the Starlight "server",
-it parses a file in your home directory called `.starlight.rkt`.
+it loads a file in your home directory called `~/.starlight/config.rkt`.
 This file could contain any valid racket code you want,
 but the necessary piece is that you `define` a (quoted) list of pairs
-named `lookup`.  The first item each pair is a symbol; this is what you
+named `lookup`.  The first item in each pair is a symbol; this is what you
 type into the input field in the launcher to perform a particular action.
-The second item in each pair is a form to execute when it's corresponding
+The second item in each pair is a form to execute when its corresponding
 symbol is chosen and run. For convenience, the function `exec` is defined
-so that you can issue shell commands more easily.
+so that you can issue shell commands more easily. The launched program's
+standard input and output are pointed at `/dev/null`, so it is fully
+detached from Starlight.
 
-For example, a two item starlight configuration would may look like this...
+The form's return value decides whether the launcher hides afterwards: if
+it returns `#f`, the window stays up. That is handy for targets that
+change state (switching the matching mode, say, or swapping in a
+different `lookup`) rather than launching something.
+
+For example, a two item starlight configuration might look like this...
 
 ```racket
 (define lookup
@@ -58,10 +69,10 @@ For example, a two item starlight configuration would may look like this...
     (terminal (exec "gnome-terminal"))))
 ```
 
-The `.starlight.rkt` file has access to all the variables and functions of
+The `config.rkt` file has access to all the variables and functions of
 the code that runs the starlight "server". You can, therefore, make changes
-to the `.starlight.rkt` file and have the server re-parse this file to make
-changes to the app in *as the starlight code runs*. Another example `.starlight.rkt` file
+to `config.rkt` and have the server re-load this file to make
+changes to the app *as the starlight code runs*. Another example `config.rkt`
 may look like this....
 
 ```racket
@@ -78,7 +89,7 @@ Executing the "repl" target will open up a racket REPL that _gives you
 full access to the variables and functions of the running server_. The
 opportunities to shoot yourself in the foot are endless!
 
-The fact that `.starlight.rkt` can contain any valid Racket forms/code
+The fact that `config.rkt` can contain any valid Racket forms/code
 creates the opportunity to do some really neat things. For example, you can
 create a target called `wiki` that searches wikipedia for anything that comes
 after `wiki` and a colon.
@@ -118,32 +129,53 @@ Finally let's add another recipe to the `lookup` variable from before...
 
 ```
 
+By default a target matches when it *starts with* what you've typed. The
+matching function lives in a parameter called `matching?`, so you can swap
+in `string-contains?` (or anything else that takes a candidate and the
+typed text) from your config:
+
+```racket
+(define matching? (make-parameter string-contains?))
+```
+
 Finally, the OS can be determined using the `(system-type 'os)` form in
 racket.  This will allow you to test the OS and provide different lists
 to `lookup` based on your current system. This is useful for having just
-*one* `.starlight.rkt` configuration which will work across all your platforms.
+*one* `config.rkt` which will work across all your platforms.
 
 
 Installation
 ---
 
-**If you're using a mac**
-With racket you can build standalone executables that contain
-a racket interpreter. In the `./mac-app/` folder you'll see
-`Starlight.app` with a cute dinosaur icon apropos of nothing.
-Drag that into your /Applications/ folder. You can have it start
-up everytime you log in by going to
-"System Preferences -> Users & Groups" clicking the "Login Items" pane
-and adding "Starlight".
+**On any platform, first:**
+Install [Racket](https://racket-lang.org/) and clone this project into
+your home directory (or anywhere you'd like, really)...
 
-Now, you have to make the appropriate files in a directory called
-`.starlight` in your home folder. To do it most easily, run
+```
+git clone https://github.com/tonyfischetti/starlight.git ~/starlight
+```
+
+Then make the appropriate files in a directory called `.starlight` in your
+home folder. To do it most easily, run
 ```
 git clone https://github.com/tonyfischetti/starlight-config.git ~/.starlight
 ```
-and make the configuration file (`config.rkt`) your own!
+and make the configuration file (`config.rkt`) your own! That directory
+also holds a tiny `loader.rkt` that tells Starlight where the config
+lives; it must exist before you start (or build) Starlight.
 
-Finally, you have to assign a keyboard shortcut to the command
+**If you're using a mac**
+With racket you can build a standalone `Starlight.app` that contains
+a racket interpreter (and a cute dinosaur icon apropos of nothing).
+From the repository, run
+```
+./make-mac-app.sh
+```
+which leaves the app in `./mac-app/Starlight.app`. Drag that into your
+/Applications/ folder. You can have it start up every time you log in by
+going to "System Settings -> General -> Login Items" and adding "Starlight".
+
+Then assign a keyboard shortcut to the command
 `curl "http://localhost:9876"` which will be able to bring up (or tear down)
 the launcher. I suggest
 [ICanHazShortcut](https://github.com/deseven/icanhazshortcut) which is
@@ -152,29 +184,15 @@ Shift+Backspace.
 
 
 **If you don't have a mac**
-*This directions are applicable to Mac users, too*
-First, you have to install racket. Then clone this project into your
-home directory (or anywhere you'd like, really)...
-
-```
-git clone https://github.com/tonyfischetti/starlight.git ~/starlight
-```
-
-Now, you have to make the appropriate files in a directory called
-`.starlight` in your home folder. To do it most easily, run
-```
-git clone https://github.com/tonyfischetti/starlight-config.git ~/.starlight
-```
-and make the configuration file (`config.rkt`) your own!
-
+*These directions work on a Mac, too, if you'd rather not build the app*
 To start the Starlight "server", run the `start-starlight.sh` shell script
-in this repository. (Make sure the Racket bin directory is in your PATH
-environment variable.) Alternatively, you can just run
-`racket -e '(enter! "starlight.rkt")' &` in the shell. You may want to run
-this command at startup so you don't have to remember to start the server
-everytime you restart your computer.
+in this repository. (It assumes the repository lives at `~/starlight` and
+that the Racket bin directory is in your PATH.) Alternatively, you can
+just run `racket -e '(enter! "starlight.rkt")' &` from the repository
+directory. You may want to run this command at startup so you don't have
+to remember to start the server every time you restart your computer.
 
-Finally, we have to assign a keyboard shortcut to the command
+Finally, assign a keyboard shortcut to the command
 `curl "http://localhost:9876"` which will be able to bring up (or tear down)
 the launcher.
 
@@ -184,7 +202,7 @@ FAQ
 _Is Starlight for everyone?_
 
 I'd like anyone who is interested to look into it but Starlight is certainly
-not for everybody. It's power is (strictly speaking) unecessary. Starlight
+not for everybody. Its power is (strictly speaking) unnecessary. Starlight
 is probably best suited for use among Lisp hackers. Given that impractical
 Lisp hackers tend to write practical solutions to all their problems
 themselves, I predict no one but me will be using this. If you do, dear reader,
