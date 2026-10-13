@@ -157,9 +157,11 @@
   (close-output-port out))
 
 (define (handle in out)
-  (if SHOWN?
-    (HIDE!)
-    (SHOW!)))
+  (queue-callback
+    (lambda ()
+      (if SHOWN?
+        (HIDE!)
+        (SHOW!)))))
 
 (define stop-server (serve PORT))
 
