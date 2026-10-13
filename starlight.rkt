@@ -12,13 +12,12 @@
 
 #lang racket/load
 
+; NOTE: in #lang racket/load every form, including these requires, is
+; evaluated at runtime, so `raco exe` cannot see them. The libraries the
+; standalone app needs are listed with ++lib in make-mac-app.sh instead.
+; racket/load's top level already provides everything in `racket`
+; (racket/string, racket/system, racket/class, ...).
 (require racket/gui)
-(require racket/string)
-(require racket/system)
-(require racket/class)
-(require racket/runtime-path
-         (for-syntax racket/lang/reader))
-(require (for-syntax racket/match/parse))
 (require (file "~/.starlight/loader.rkt"))
 
 (define *VERSION* "0.99")
@@ -30,7 +29,6 @@
 ; override it; a define placed after load-rc would clobber the config's.
 (define matching? (make-parameter string-prefix?))
 
-(define this-form '())
 (define inputcontents "")
 
 (define PORT 9876)
@@ -94,7 +92,6 @@
   (send input focus))
 
 (define (do-target-match winner contents)
-  (set! this-form (assoc (string->symbol winner) lookup))
   (set! inputcontents contents)
   (let [(exec-form (get-exec-form lookup (string->symbol winner)))]
     (with-handlers ([exn:fail? (lambda (e) (report-target-error winner e))])
