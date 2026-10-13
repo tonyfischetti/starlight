@@ -55,15 +55,22 @@
   (parameterize ([current-namespace ns])
     (load config-path)))
 
-; A missing config would otherwise die with an error on stderr, which is
-; invisible when launched from Login Items or a desktop session.
-(unless (file-exists? config-path)
-  (message-box "Starlight"
-               (format "No config file found at:\n~a" config-path)
-               #f '(ok stop))
+; A missing or broken config would otherwise die with an error on
+; stderr, which is invisible when launched from Login Items or a desktop
+; session. (Errors from a later `reload` target go through the handler
+; in do-target-match instead, and leave the previous config in place.)
+(define (fatal msg)
+  (message-box "Starlight" msg #f '(ok stop))
   (exit 1))
 
-(load-rc)
+(unless (file-exists? config-path)
+  (fatal (format "No config file found at:\n~a" config-path)))
+
+; (The exception message already names the file, line and column.)
+(with-handlers ([exn:fail?
+                 (lambda (e)
+                   (fatal (format "Error loading config:\n\n~a" (exn-message e))))])
+  (load-rc))
 
 (define mac? (eq? (system-type 'os) 'macosx))
 
