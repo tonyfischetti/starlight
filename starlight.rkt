@@ -79,6 +79,9 @@
 (define (mac-show-panel!) (void))
 
 (define (SHOW!)
+  ; re-center every time, so docking/undocking a display or changing
+  ; resolution doesn't leave the chooser where it used to be centered
+  (send topframe center)
   (send topframe show #t)
   (mac-show-panel!)
   (set! SHOWN? #t)
@@ -201,7 +204,6 @@
 
 
 (populate-field app-field lookup "")
-(send topframe center)
 (SHOW!)
 
 (define about-dialog
