@@ -111,7 +111,7 @@
            (let* ([etype (send b get-event-type)]
                   [contents (send input get-value)]
                   [separated (string-split contents arg-separator)]
-                  [firstitem (if (not (equal? contents "")) (car separated) contents)])
+                  [firstitem (if (null? separated) "" (car separated))])
              (let ([passing (populate-field app-field lookup firstitem)])
                (cond [(and (eq? etype 'text-field-enter) (= 1 (length passing)))
                       (do-target-match (car passing) contents)]
