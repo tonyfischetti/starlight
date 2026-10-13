@@ -20,7 +20,7 @@ in the foot.
 So what's the big idea
 ---
 So... when Starlight starts, it loads a file in your home directory called
-`~/.starlight/config.rkt`. It populates the launcher window with targets
+`~/.config/starlight/config.rkt`. It populates the launcher window with targets
 defined in the aforementioned file. As you type a target into the input
 window, the launcher will narrow down based on whether it matches what you
 are typing. Once the app field is narrowed down to one selection, striking
@@ -52,7 +52,8 @@ So why is it powerful
 
 Starlight exploits Lisp's powerful mechanisms for dynamic code
 execution. As mentioned before, upon starting the Starlight "server",
-it loads a file in your home directory called `~/.starlight/config.rkt`.
+it loads a file in your home directory called `~/.config/starlight/config.rkt`
+(or `$XDG_CONFIG_HOME/starlight/config.rkt` if that variable is set).
 This file could contain any valid racket code you want,
 but the necessary piece is that you `define` a (quoted) list of pairs
 named `lookup`.  The first item in each pair is a symbol; this is what you
@@ -162,14 +163,15 @@ your home directory (or anywhere you'd like, really)...
 git clone https://github.com/tonyfischetti/starlight.git ~/starlight
 ```
 
-Then make the appropriate files in a directory called `.starlight` in your
-home folder. To do it most easily, run
+Then make a `config.rkt` in `~/.config/starlight/` (or in
+`$XDG_CONFIG_HOME/starlight/` if you set that variable). To do it most
+easily, run
 ```
-git clone https://github.com/tonyfischetti/starlight-config.git ~/.starlight
+git clone https://github.com/tonyfischetti/starlight-config.git ~/.config/starlight
 ```
-and make the configuration file (`config.rkt`) your own! That directory
-also holds a tiny `loader.rkt` that tells Starlight where the config
-lives; it must exist before you start (or build) Starlight.
+and make the configuration file (`config.rkt`) your own! It must exist
+before you start Starlight; if it doesn't, Starlight tells you where it
+looked and exits.
 
 **If you're using a mac**
 With racket you can build a standalone `Starlight.app` that contains

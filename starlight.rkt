@@ -22,7 +22,6 @@
 ; ffi/unsafe/objc tolerates a missing libobjc, and the calls that need
 ; it are guarded by an OS check.
 (require ffi/unsafe ffi/unsafe/objc ffi/unsafe/global)
-(require (file "~/.starlight/loader.rkt"))
 
 (define *VERSION* "0.99")
 
@@ -43,9 +42,26 @@
 (define ns (namespace-anchor->namespace a))
 
 
+; The config file lives at $XDG_CONFIG_HOME/starlight/config.rkt, which
+; is ~/.config/starlight/config.rkt unless XDG_CONFIG_HOME is set.
+(define config-path
+  (let ([xdg (getenv "XDG_CONFIG_HOME")])
+    (build-path (if (and xdg (not (string=? xdg "")))
+                    xdg
+                    (build-path (find-system-path 'home-dir) ".config"))
+                "starlight" "config.rkt")))
+
 (define (load-rc)
   (parameterize ([current-namespace ns])
-    (load incpath)))
+    (load config-path)))
+
+; A missing config would otherwise die with an error on stderr, which is
+; invisible when launched from Login Items or a desktop session.
+(unless (file-exists? config-path)
+  (message-box "Starlight"
+               (format "No config file found at:\n~a" config-path)
+               #f '(ok stop))
+  (exit 1))
 
 (load-rc)
 
